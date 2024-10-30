@@ -1,0 +1,85 @@
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Login Page</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js"></script>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-white">
+  <div class="text-center">
+    <img alt="Sonocell Medical Clinic Logo" class="mx-auto mb-6" src="/logoSono.jpeg"/>
+    <form class="space-y-4" id="login-form">
+      <div class="flex items-center border border-gray-300 rounded-full px-3 py-2">
+        <i class="fas fa-user text-gray-500"></i>
+        <input class="ml-2 outline-none flex-1" id="username" placeholder="Usuario" type="text" required/>
+      </div>
+      <div class="flex items-center border border-gray-300 rounded-full px-3 py-2">
+        <i class="fas fa-lock text-gray-500"></i>
+        <input class="ml-2 outline-none flex-1" id="password" placeholder="Contraseña" type="password" required/>
+      </div>
+      <button class="w-full py-2 bg-teal-600 text-white rounded-full" type="submit">Iniciar Sesion</button>
+    </form>
+    <p class="mt-6 text-gray-500">© Copyright Sonocell - All Rights Reserved</p>
+  </div>
+
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgCugRPj1uLCj_Xq-ulbbyCUmYN19RRjk",
+      authDomain: "sonocell-be956.firebaseapp.com",
+      projectId: "sonocell-be956",
+      storageBucket: "sonocell-be956.appspot.com",
+      messagingSenderId: "1008752766478",
+      appId: "1:1008752766478:web:53c4c4740d3fc51babd65f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    document.getElementById("login-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const usuariosRef = collection(db, "usuarios");
+        const q = query(usuariosRef, where("user", "==", username));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          let userEmail = null;
+
+          querySnapshot.forEach((doc) => {
+            userEmail = doc.data().email;
+          });
+
+          if (userEmail) {
+            const userCredential = await signInWithEmailAndPassword(auth, userEmail, password);
+            alert("Inicio de sesión exitoso");
+            window.location.href = 'crud1';  
+          } else {
+            alert("No se encontró el correo electrónico asociado a este usuario");
+          }
+        } else {
+          alert("Usuario no encontrado. Verifica tus credenciales.");
+        }
+      } catch (error) {
+        if (error.code === 'auth/wrong-password') {
+          alert("Contraseña incorrecta. Inténtalo de nuevo.");
+        } else {
+          alert("Error en el inicio de sesión: " + error.message);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

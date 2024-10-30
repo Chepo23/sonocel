@@ -1,0 +1,123 @@
+<html>
+ <head>
+  <meta charset="utf-8"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <!-- Importa Firebase y Firestore -->
+  <script type="module">
+    // Tu configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgCugRPj1uLCj_Xq-ulbbyCUmYN19RRjk",
+      authDomain: "sonocell-be956.firebaseapp.com",
+      projectId: "sonocell-be956",
+      storageBucket: "sonocell-be956.appspot.com",
+      messagingSenderId: "1008752766478",
+      appId: "1:1008752766478:web:53c4c4740d3fc51babd65f"
+    };
+
+    // Inicializa Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.8.3/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.8.3/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.8.3/firebase-auth.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Función para obtener los datos de la colección 'clientes'
+    async function fetchClientes() {
+      const tableBody = document.getElementById('clientes-table-body');
+      const querySnapshot = await getDocs(collection(db, 'pacientes'));
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const row = document.createElement('tr');
+
+        row.innerHTML = `
+          <td class="border border-black px-4 py-2">${doc.id}</td>
+          <td class="border border-black px-4 py-2">${data.nombre}</td>
+          <td class="border border-black px-4 py-2">${data.edad}</td>
+          <td class="border border-black px-4 py-2">${data.telefono}</td>
+          <td class="border border-black px-4 py-2">${data.domicilio}</td>
+          <td class="border border-black px-4 py-2">
+            <button class="bg-teal-600 text-white py-1 px-2 rounded-full flex items-center" onclick="window.location.href='edit'" type="button">
+              EDITAR
+              <i class="fas fa-edit ml-2"></i>
+            </button>
+          </td>
+          <td class="border border-black px-4 py-2">
+            <button class="bg-gray-300 text-teal-600 py-1 px-2 rounded-full">
+              HISTORIAL
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function displayUsername() {
+      const userGreeting = document.getElementById('user-greeting');
+      const userId = auth.currentUser.uid; // Obtener el ID del usuario autenticado
+      const userDocRef = collection(db, 'usuarios'); // Referencia a la colección 'usuarios'
+
+      // Consultar el documento del usuario para obtener el nombre
+      getDocs(userDocRef).then((snapshot) => {
+        snapshot.forEach((doc) => {
+          if (doc.id === userId) { // Verificar si el documento corresponde al usuario autenticado
+            const userData = doc.data();
+            userGreeting.textContent = `Bienvenido, ${userData.user}`; // Mostrar el nombre de usuario
+          }
+        });
+      }).catch((error) => {
+        console.error("Error fetching user data: ", error);
+      });
+    }
+
+    // Llama a la función para cargar los datos cuando se cargue la página
+    window.onload = async () => {
+      // Verifica el estado de autenticación
+      onAuthStateChanged(auth, (user) => {
+        displayWelcomeMessage(user);
+      });
+
+      // Fetch clientes
+      await fetchClientes();
+    };
+  </script>
+ </head>
+ <body class="bg-white">
+  <div class="container mx-auto p-4">
+   <div class="flex justify-between items-center mb-4">
+    <img alt="Soncell Medical Clinic Logo" class="h-12" src="logoSono.jpeg"/>
+    <div id="welcome-message" class="text-teal-600 text-lg"></div>
+    <i class="fas fa-cog text-teal-600 text-2xl"></i>
+   </div>
+   <hr class="border-black mb-4"/>
+   <div class="flex justify-between items-center mb-4">
+    <button class="bg-teal-600 text-white py-2 px-4 rounded-full" onclick="window.location.href='registro2'" type="button">
+     Registrar
+    </button>
+    <div class="relative">
+     <input class="border-2 border-teal-600 rounded-full py-2 px-4 w-64" placeholder="Buscar..." type="text"/>
+     <i class="fas fa-search absolute right-4 top-3 text-teal-600"></i>
+    </div>
+   </div>
+   <table class="w-full border-collapse border border-black">
+    <thead>
+     <tr>
+      <th class="border border-black px-4 py-2">ID</th>
+      <th class="border border-black px-4 py-2">NOMBRE</th>
+      <th class="border border-black px-4 py-2">EDAD</th>
+      <th class="border border-black px-4 py-2">TELÉFONO</th>
+      <th class="border border-black px-4 py-2">DOMICILIO</th>
+      <th class="border border-black px-4 py-2">EDITAR</th>
+      <th class="border border-black px-4 py-2">HISTORIAL</th>
+     </tr>
+    </thead>
+    <tbody id="clientes-table-body">
+     <!-- Aquí se llenarán los datos desde Firestore -->
+    </tbody>
+   </table>
+  </div>
+ </body>
+</html>
