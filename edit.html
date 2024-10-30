@@ -3,19 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Pacientes</title>
+    <title>Editar Paciente</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet"/>
-    <!-- Firebase SDK -->
     <script type="module">
-        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js";
-        import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js";
-        // Your Firebase configuration
+        import { getFirestore, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js";
+
         const firebaseConfig = {
-            apiKey: "AIzaSyAgCugRPj1uLCj_Xq-ulbbyCUmYN19RRjk",
+            apiKey: "API_KEY",
             authDomain: "sonocell-be956.firebaseapp.com",
             projectId: "sonocell-be956",
             storageBucket: "sonocell-be956.appspot.com",
@@ -23,94 +18,112 @@
             appId: "1:1008752766478:web:53c4c4740d3fc51babd65f"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Function to register patient data
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('registerButton').addEventListener('click', async () => {
-                const fechaRegistro = document.getElementById('fecha-registro').value;
-                const nombre = document.getElementById('nombre').value;
-                const genero = document.getElementById('genero').value;
-                const domicilio = document.getElementById('domicilio').value;
-                const email = document.getElementById('email').value;
-                const oficio = document.getElementById('oficio').value;
-                const fechaNacimiento = document.getElementById('fecha-nacimiento').value;
-                const edad = document.getElementById('edad').value;
-                const telefono = document.getElementById('telefono').value;
-                const escolaridad = document.getElementById('escolaridad').value;
-                const religion = document.getElementById('religion').value;
-                const tipoSanguineo = document.getElementById('tipo-sanguineo').value;
-                const quirurgicos = document.getElementById('quirurgicos').value;
-                const transfusionSanguinea = document.getElementById('transfusion-sanguinea').value;
-                const has = document.getElementById('has').value;
-                const alergicos = document.getElementById('alergicos').value;
-                const toxicomanias = document.getElementById('toxicomanias').value;
-                const dm2 = document.getElementById('dm2').value;
-                const otros = document.getElementById('otros').value;
+        // Función para cargar los datos del paciente
+        async function loadPatientData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const patientId = urlParams.get('id');
 
-                // Validate input (optional)
-                if (!nombre || !telefono) {
-            alert('Por favor complete los campos obligatorios.');
-            return;
+            if (!patientId) {
+                alert('ID de paciente no encontrado');
+                return;
+            }
+
+            const patientRef = doc(db, 'pacientes', patientId);
+            const patientSnap = await getDoc(patientRef);
+
+            if (patientSnap.exists()) {
+                const data = patientSnap.data();
+                document.getElementById('fecha-registro').value = data.fechaRegistro || '';
+                document.getElementById('nombre').value = data.nombre || '';
+                document.getElementById('genero').value = data.genero || '';
+                document.getElementById('edad').value = data.edad || '';
+                document.getElementById('domicilio').value = data.domicilio || '';
+                document.getElementById('email').value = data.email || '';
+                document.getElementById('telefono').value = data.telefono || '';
+                document.getElementById('tipo-sanguineo').value = data.tipoSanguineo || '';
+                document.getElementById('oficio').value = data.oficio || '';
+                document.getElementById('fecha-nacimiento').value = data.fechaNacimiento || '';
+                document.getElementById('escolaridad').value = data.escolaridad || '';
+                document.getElementById('religion').value = data.religion || '';
+                document.getElementById('quirurgicos').value = data.quirurgicos || '';
+                document.getElementById('transfusion-sanguinea').value = data.transfusionSanguinea || '';
+                document.getElementById('has').value = data.has || '';
+                document.getElementById('alergicos').value = data.alergicos || '';
+                document.getElementById('toxicomanias').value = data.toxicomanias || '';
+                document.getElementById('dm2').value = data.dm2 || '';
+                document.getElementById('otros').value = data.otros || '';
+            } else {
+                alert('Paciente no encontrado');
+            }
         }
 
-        try {
-            // Reference to the "pacientes" collection
-            const pacientesRef = collection(db, 'pacientes');
+        // Función para actualizar los datos del paciente
+        async function updatePatientData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const patientId = urlParams.get('id');
 
-            // Add a new document with a generated ID
-            await addDoc(pacientesRef, {
-                fechaRegistro,
-                nombre,
-                genero,
-                domicilio,
-                email,
-                oficio,
-                fechaNacimiento,
-                edad,
-                telefono,
-                escolaridad,
-                religion,
-                tipoSanguineo,
-                quirurgicos,
-                transfusionSanguinea,
-                has,
-                alergicos,
-                toxicomanias,
-                dm2,
-                otros
-            });
-            alert('Paciente registrado exitosamente');
+            if (!patientId) return;
 
-            window.location.href = 'crud1.html';
-            // Clear the form after successful submission
-            document.getElementById('fecha-registro').value = '';
-            document.getElementById('nombre').value = '';
-            document.getElementById('genero').value = '';
-            document.getElementById('domicilio').value = '';
-            document.getElementById('email').value = '';
-            document.getElementById('oficio').value = '';
-            document.getElementById('fecha-nacimiento').value = '';
-            document.getElementById('edad').value = '';
-            document.getElementById('telefono').value = '';
-            document.getElementById('escolaridad').value = '';
-            document.getElementById('religion').value = '';
-            document.getElementById('tipo-sanguineo').value = '';
-            document.getElementById('quirurgicos').value = '';
-            document.getElementById('transfusion-sanguinea').value = '';
-            document.getElementById('has').value = '';
-            document.getElementById('alergicos').value = '';
-            document.getElementById('toxicomanias').value = '';
-            document.getElementById('dm2').value = '';
-            document.getElementById('otros').value = '';
-        } catch (error) {
-            console.error('Error adding document: ', error);
-            alert('Error al registrar el paciente. Intente de nuevo.');
-                }
-            });
-        });
+            const patientRef = doc(db, 'pacientes', patientId);
+
+            const updatedData = {
+                fechaRegistro: document.getElementById('fecha-registro').value,
+                nombre: document.getElementById('nombre').value,
+                genero: document.getElementById('genero').value,
+                edad: document.getElementById('edad').value,
+                domicilio: document.getElementById('domicilio').value,
+                email: document.getElementById('email').value,
+                telefono: document.getElementById('telefono').value,
+                tiposangre: document.getElementById('tipo-sanguineo').value,
+                oficio: document.getElementById('oficio').value,
+                fechaNacimiento: document.getElementById('fecha-nacimiento').value,
+                escolaridad: document.getElementById('escolaridad').value,
+                religion: document.getElementById('religion').value,
+                quirurgicos: document.getElementById('quirurgicos').value,
+                transfusionSanguinea: document.getElementById('transfusion-sanguinea').value,
+                has: document.getElementById('has').value,
+                alergicos: document.getElementById('alergicos').value,
+                toxicomanias: document.getElementById('toxicomanias').value,
+                dm2: document.getElementById('dm2').value,
+                otros: document.getElementById('otros').value,
+
+            };
+
+            try {
+                await updateDoc(patientRef, updatedData);
+                alert('Datos del paciente actualizados exitosamente');
+                window.location.href = 'crud1.html'; // Redirigir a la página de la tabla después de guardar
+            } catch (error) {
+                console.error('Error al actualizar los datos:', error);
+                alert('Error al actualizar los datos del paciente.');
+            }
+        }
+
+        // Función para eliminar el paciente
+        async function deletePatientData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const patientId = urlParams.get('id');
+
+            if (!patientId) return;
+
+            const patientRef = doc(db, 'pacientes', patientId);
+
+            try {
+                await deleteDoc(patientRef);
+                alert('Paciente eliminado exitosamente');
+                window.location.href = 'crud1.html';
+            } catch (error) {
+                console.error('Error al eliminar el paciente:', error);
+                alert('Error al eliminar el paciente.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadPatientData);
+        document.getElementById('registerButton').addEventListener('click', updatePatientData);
+        document.getElementById('deleteButton').addEventListener('click', deletePatientData);
     </script>
 </head>
 <body class="bg-white font-roboto">
@@ -209,7 +222,8 @@
             </div>
         </div>
         <div class="flex justify-center">
-            <button id="registerButton" class="bg-teal-500 text-white font-bold py-2 px-4 rounded-md">Registrar</button>
+            <button id="registerButton" class="bg-teal-500 text-white font-bold py-2 px-4 rounded-md mr-2">Guardar</button>
+            <button id="deleteButton" class="bg-red-500 text-white font-bold py-2 px-4 rounded-md">Eliminar Paciente</button>
         </div>
     </div>
 </body>

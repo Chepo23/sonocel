@@ -40,7 +40,7 @@
           <td class="border border-black px-4 py-2">${data.telefono}</td>
           <td class="border border-black px-4 py-2">${data.domicilio}</td>
           <td class="border border-black px-4 py-2">
-            <button class="bg-teal-600 text-white py-1 px-2 rounded-full flex items-center" onclick="window.location.href='edit'" type="button">
+            <button class="bg-teal-600 text-white py-1 px-2 rounded-full flex items-center" onclick="window.location.href='edit.html?id=${doc.id}'" type="button">
               EDITAR
               <i class="fas fa-edit ml-2"></i>
             </button>
@@ -55,29 +55,10 @@
       });
     }
 
-    function displayUsername() {
-      const userGreeting = document.getElementById('user-greeting');
-      const userId = auth.currentUser.uid; // Obtener el ID del usuario autenticado
-      const userDocRef = collection(db, 'usuarios'); // Referencia a la colección 'usuarios'
-
-      // Consultar el documento del usuario para obtener el nombre
-      getDocs(userDocRef).then((snapshot) => {
-        snapshot.forEach((doc) => {
-          if (doc.id === userId) { // Verificar si el documento corresponde al usuario autenticado
-            const userData = doc.data();
-            userGreeting.textContent = `Bienvenido, ${userData.user}`; // Mostrar el nombre de usuario
-          }
-        });
-      }).catch((error) => {
-        console.error("Error fetching user data: ", error);
-      });
-    }
-
     // Llama a la función para cargar los datos cuando se cargue la página
     window.onload = async () => {
       // Verifica el estado de autenticación
       onAuthStateChanged(auth, (user) => {
-        displayWelcomeMessage(user);
       });
 
       // Fetch clientes
