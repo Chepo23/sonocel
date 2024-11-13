@@ -1,0 +1,134 @@
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Medical Form</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  
+  <!-- Importa Firebase y Firestore -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.8.3/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.8.3/firebase-firestore.js";
+
+    // Configuración de Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgCugRPj1uLCj_Xq-ulbbyCUmYN19RRjk",
+      authDomain: "sonocell-be956.firebaseapp.com",
+      projectId: "sonocell-be956",
+      storageBucket: "sonocell-be956.appspot.com",
+      messagingSenderId: "1008752766478",
+      appId: "1:1008752766478:web:53c4c4740d3fc51babd65f"
+    };
+
+    // Inicializa Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Función para obtener el parámetro 'id' de la URL
+    function getPatientIdFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+
+    // Función para mostrar el nombre del paciente
+    async function displayPatientName() {
+      const patientId = getPatientIdFromURL();
+      if (patientId) {
+        const docRef = doc(db, 'pacientes', patientId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById('patient-name').innerText = `Historial de: ${data.nombre}`;
+        } else {
+          console.error("No existe el paciente con el ID proporcionado.");
+        }
+      } else {
+        console.error("No se proporcionó un ID de paciente en la URL.");
+      }
+    }
+
+    // Llama a la función para mostrar el nombre del paciente cuando se cargue la página
+    window.onload = displayPatientName;
+  </script>
+</head>
+
+<body class="bg-white">
+  <div class="max-w-4xl mx-auto p-4">
+    <div class="flex justify-between items-center mb-4">
+      <img alt="Logo of Soncell Medical Clinic" class="h-12" height="50" src="logoSono.jpeg" width="150"/>
+      <i class="fas fa-cog text-teal-600 text-2xl"></i>
+    </div>
+    <hr class="border-t-2 border-black mb-4"/>
+    
+    <!-- Sección para mostrar el nombre del paciente -->
+    <h2 id="patient-name" class="text-2xl font-semibold text-teal-600 mb-4">
+      Historial del paciente
+    </h2>
+    
+    <form class="space-y-4">
+      <div class="grid grid-cols-3 gap-4">
+       <div>
+        <label class="block text-sm font-medium text-gray-700" for="fecha-consulta">
+         Fecha de consulta
+        </label>
+        <input class="mt-1 block w-full border border-teal-600 rounded py-2 px-3" id="fecha-consulta" type="text"/>
+       </div>
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+       <div>
+        <label class="block text-sm font-medium text-gray-700" for="motivo-consulta">
+         Motivo de consulta
+        </label>
+        <textarea class="mt-1 block w-full border border-teal-600 rounded py-1 px-2" id="motivo-consulta" rows="2"></textarea>
+       </div>
+       <div>
+        <label class="block text-sm font-medium text-gray-700" for="estilo-vida">
+         Estilo de vida
+        </label>
+        <textarea class="mt-1 block w-full border border-teal-600 rounded py-1 px-2" id="estilo-vida" rows="2"></textarea>
+       </div>
+       <div>
+        <label class="block text-sm font-medium text-gray-700" for="alimentacion">
+         Alimentacion
+        </label>
+        <textarea class="mt-1 block w-full border border-teal-600 rounded py-1 px-2" id="alimentacion" rows="2"></textarea>
+       </div>
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+       <div>
+        <label class="block text-sm font-medium text-gray-700" for="sintomas">
+         Sintomas
+        </label>
+        <textarea class="mt-1 block w-full border border-teal-600 rounded py-1 px-2" id="sintomas" rows="2"></textarea>
+       </div>
+       <div>
+        <label class="block text-sm font-medium text-gray-700" for="medicamentos-actuales">
+         Medicamentos actuales
+        </label>
+        <textarea class="mt-1 block w-full border border-teal-600 rounded py-1 px-2" id="medicamentos-actuales" rows="2"></textarea>
+       </div>
+       <div>
+        <label class="block text-sm font-medium text-gray-700" for="antecedentes-familiares">
+         Antecedentes Familiares
+        </label>
+        <textarea class="mt-1 block w-full border border-teal-600 rounded py-1 px-2" id="antecedentes-familiares" rows="2"></textarea>
+       </div>
+      </div>
+      <div>
+       <label class="block text-sm font-medium text-gray-700" for="notas-adicionales">
+        Notas adicionales
+       </label>
+       <textarea class="mt-1 block w-full border border-teal-600 rounded py-1 px-2" id="notas-adicionales" rows="3"></textarea>
+      </div>
+      <div class="flex justify-center mt-4">
+       <button class="bg-teal-600 text-white px-6 py-2 rounded" type="submit">
+        Registrar
+       </button>
+      </div>
+     </form>
+    </div>
+   </body>
+  </html>
+  

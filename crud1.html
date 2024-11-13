@@ -5,7 +5,7 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
   <!-- Importa Firebase y Firestore -->
   <script type="module">
-    // Tu configuración de Firebase
+    // Configuración de Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAgCugRPj1uLCj_Xq-ulbbyCUmYN19RRjk",
       authDomain: "sonocell-be956.firebaseapp.com",
@@ -46,7 +46,7 @@
             </button>
           </td>
           <td class="border border-black px-4 py-2">
-            <button class="bg-gray-300 text-teal-600 py-1 px-2 rounded-full">
+            <button class="bg-gray-300 text-teal-600 py-1 px-2 rounded-full" onclick="window.location.href='historial.html?id=${doc.id}'" type="button">
               HISTORIAL
             </button>
           </td>
@@ -55,14 +55,32 @@
       });
     }
 
+    // Función para filtrar clientes por nombre en la tabla
+    function filterClientes() {
+      const searchInput = document.getElementById('search-input').value.toLowerCase();
+      const tableBody = document.getElementById('clientes-table-body');
+      const rows = tableBody.getElementsByTagName('tr');
+
+      Array.from(rows).forEach((row) => {
+        const nombre = row.cells[1].textContent.toLowerCase(); // Obtén el nombre de la columna correspondiente
+        if (nombre.includes(searchInput)) {
+          row.style.display = ''; // Muestra la fila si coincide
+        } else {
+          row.style.display = 'none'; // Oculta la fila si no coincide
+        }
+      });
+    }
+
     // Llama a la función para cargar los datos cuando se cargue la página
     window.onload = async () => {
       // Verifica el estado de autenticación
-      onAuthStateChanged(auth, (user) => {
-      });
+      onAuthStateChanged(auth, (user) => {});
 
       // Fetch clientes
       await fetchClientes();
+
+      // Agrega el evento de filtro a la barra de búsqueda
+      document.getElementById('search-input').addEventListener('input', filterClientes);
     };
   </script>
  </head>
@@ -79,7 +97,7 @@
      Registrar
     </button>
     <div class="relative">
-     <input class="border-2 border-teal-600 rounded-full py-2 px-4 w-64" placeholder="Buscar..." type="text"/>
+     <input id="search-input" class="border-2 border-teal-600 rounded-full py-2 px-4 w-64" placeholder="Buscar..." type="text"/>
      <i class="fas fa-search absolute right-4 top-3 text-teal-600"></i>
     </div>
    </div>
