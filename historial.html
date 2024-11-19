@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="utf-8"/>
@@ -9,7 +10,7 @@
   <!-- Importa Firebase y Firestore -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.8.3/firebase-app.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.8.3/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.8.3/firebase-firestore.js";
 
     // Configuración de Firebase
     const firebaseConfig = {
@@ -40,7 +41,7 @@
 
         if (docSnap.exists()) {
           const data = docSnap.data();
-          document.getElementById('patient-name').innerText = `Historial de: ${data.nombre}`;
+          document.getElementById('patient-name').innerText = `Historial de:${data.nombre}`;
         } else {
           console.error("No existe el paciente con el ID proporcionado.");
         }
@@ -49,18 +50,71 @@
       }
     }
 
-    // Llama a la función para mostrar el nombre del paciente cuando se cargue la página
-    window.onload = displayPatientName;
+    // Función para registrar el historial
+    async function registerHistory(event) {
+      event.preventDefault(); // Evita que el formulario se envíe de forma tradicional
+
+      const patientId = getPatientIdFromURL();
+      if (!patientId) {
+        console.error("No se proporcionó un ID de paciente en la URL.");
+        return;
+      }
+
+      // Recoger datos del formulario
+      const fechaConsulta = document.getElementById('fecha-consulta').value;
+      const motivoConsulta = document.getElementById('motivo-consulta').value;
+      const estiloVida = document.getElementById('estilo-vida').value;
+      const alimentacion = document.getElementById('alimentacion').value;
+      const sintomas = document.getElementById('sintomas').value;
+      const medicamentosActuales = document.getElementById('medicamentos-actuales').value;
+      const antecedentesFamiliares = document.getElementById('antecedentes-familiares').value;
+      const notasAdicionales = document.getElementById('notas-adicionales').value;
+
+      // Crear objeto con los datos
+      const historialData = {
+        fechaConsulta,
+        motivoConsulta,
+        estiloVida,
+        alimentacion,
+        sintomas,
+        medicamentosActuales,
+        antecedentesFamiliares,
+        notasAdicionales,
+        patientId, // Guardar también el ID del paciente
+        createdAt: new Date() // Fecha de creación
+      };
+
+      // Guardar en Firestore
+      try {
+        const collectionRef = collection(db, 'historial'); // Usar el ID del paciente para el documento
+        await addDoc(collectionRef, historialData);
+        alert("Historial registrado exitosamente.");
+        location.reload();
+      } catch (error) {
+        
+        console.error("Error al registrar el historial: ", error);
+      }
+    }
+
+    // Llama a la función para mostrar el nombre del paciente y agregar el evento al formulario cuando se cargue la página
+    window.onload = () => {
+      displayPatientName();
+      document.querySelector('form').addEventListener('submit', registerHistory); // Agregar el evento al formulario
+    };
   </script>
 </head>
 
 <body class="bg-white">
-  <div class="max-w-4xl mx-auto p-4">
+  <div class="container mx-auto p-4">
     <div class="flex justify-between items-center mb-4">
-      <img alt="Logo of Soncell Medical Clinic" class="h-12" height="50" src="logoSono.jpeg" width="150"/>
-      <i class="fas fa-cog text-teal-600 text-2xl"></i>
-    </div>
+      <img alt="Soncell Medical Clinic Logo" class="h-12" src="logoSono.jpeg"/>
+      <div id="welcome-message" class="text-teal-600 text-lg"></div>
+      <a href="javascript:history.back()">
+        <i class="fas fa-arrow-left text-xl text-teal-500"></i>
+      </a>
+     </div>
     <hr class="border-t-2 border-black mb-4"/>
+
     
     <!-- Sección para mostrar el nombre del paciente -->
     <h2 id="patient-name" class="text-2xl font-semibold text-teal-600 mb-4">
@@ -131,4 +185,3 @@
     </div>
    </body>
   </html>
-  
