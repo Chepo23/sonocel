@@ -2,9 +2,12 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="Editar" content="width=device-width, initial-scale=1.0">
     <title>Editar Paciente</title>
+    <link rel="icon" href="logo.png" type="image/png"/>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
         import { getFirestore, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js";
@@ -121,9 +124,69 @@
             }
         }
 
+        async function printPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFontSize(16);
+            doc.text('Sonocell Medical Clinic', 105, 10, { align: 'center' });
+            doc.setFontSize(12);
+            doc.text('Información del Paciente', 105, 20, { align: 'center' });
+
+            const generalData = [
+                ['Fecha de Registro', document.getElementById('fecha-registro').value],
+                ['Nombre', document.getElementById('nombre').value],
+                ['Género', document.getElementById('genero').value],
+                ['Fecha de Nacimiento', document.getElementById('fecha-nacimiento').value],
+                ['Edad', document.getElementById('edad').value],
+            ];
+
+            const personalData = [
+                ['Domicilio', document.getElementById('domicilio').value],
+                ['Email', document.getElementById('email').value],
+                ['Teléfono', document.getElementById('telefono').value],
+                ['Escolaridad', document.getElementById('escolaridad').value],
+                ['Religión', document.getElementById('religion').value],
+                ['Oficio', document.getElementById('oficio').value],
+            ];
+
+            const medicalData = [
+                ['Tipo Sanguíneo', document.getElementById('tipo-sanguineo').value],
+                ['Quirúrgicos', document.getElementById('quirurgicos').value],
+                ['Transfusión Sanguínea', document.getElementById('transfusion-sanguinea').value],
+                ['HAS', document.getElementById('has').value],
+                ['Alérgicos', document.getElementById('alergicos').value],
+                ['Toxicomanías', document.getElementById('toxicomanias').value],
+                ['DM2', document.getElementById('dm2').value],
+                ['Otros', document.getElementById('otros').value],
+            ];
+
+            const addTable = (title, data, startY) => {
+                doc.setFontSize(12);
+                doc.text(title, 10, startY - 5);
+                doc.autoTable({
+                    startY: startY,
+                    theme: 'grid',
+                    head: [['Campo', 'Valor']],
+                    body: data,
+                    styles: { fontSize: 10 },
+                    headStyles: { fillColor: [22, 160, 133] }, 
+                });
+            };
+
+            addTable('Datos Generales', generalData, 30);
+            addTable('Datos Personales', personalData, doc.previousAutoTable.finalY + 10);
+            addTable('Datos Médicos', medicalData, doc.previousAutoTable.finalY + 10);
+
+            // Guardar PDF
+            doc.save('Paciente_Datos.pdf');
+        }
+
+
         document.addEventListener('DOMContentLoaded', loadPatientData);
         document.getElementById('registerButton').addEventListener('click', updatePatientData);
         document.getElementById('deleteButton').addEventListener('click', deletePatientData);
+        document.getElementById('printPDFButton').addEventListener('click', printPDF);
     </script>
 </head>
 <body class="bg-white">
@@ -132,7 +195,7 @@
             <img alt="Soncell Medical Clinic Logo" class="h-12" src="logoSono.jpeg"/>
             <div id="welcome-message" class="text-teal-600 text-lg"></div>
             <a href="javascript:history.back()">
-                <i class="fas fa-arrow-left text-xl text-teal-500"></i>
+              <i class="fas fa-arrow-left text-xl text-teal-500"></i>
             </a>
         </div>
     <div class="w-full p-4">
@@ -226,6 +289,7 @@
         <div class="flex justify-center">
             <button id="registerButton" class="bg-teal-500 text-white font-bold py-2 px-4 rounded-md mr-2">Guardar</button>
             <button id="deleteButton" class="bg-red-500 text-white font-bold py-2 px-4 rounded-md">Eliminar Paciente</button>
+            <button id="printPDFButton" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-md">Imprimir PDF</button>
         </div>
     </div>
 </body>
